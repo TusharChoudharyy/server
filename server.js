@@ -3,24 +3,22 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 require("dotenv").config();
+const path = require("path");
 
 const contactRoutes = require("./routes/contactroutes");
+const blogRoute = require('./routes/blogRoutes');
+
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8080;
 
 // Middlewares
 app.use(cors());
 app.use(bodyParser.json());
-
-// Root Route
-app.get("/", (req, res) => {
-  res.send("Backend server is up and running!");
-});
-
-
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // Routes
 app.use("/api/contact", contactRoutes);
+app.use("/api", blogRoute);
 
 // MongoDB Connection
 mongoose
