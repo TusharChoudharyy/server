@@ -16,7 +16,7 @@ router.post("/", async (req, res) => {
 });
 
 // GET /api/contact - fetch all submissions (optional)
-router.get("/", async (req, res) => {
+router.get("/get-contact", async (req, res) => {
   try {
     const contacts = await Contact.find().sort({ createdAt: -1 });
     res.json(contacts);

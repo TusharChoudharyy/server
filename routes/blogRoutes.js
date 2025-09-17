@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const getMulterUploader = require("../middleware/upload");
 const Blog = require("../models/Blogs");
+const fs = require("fs");
+const path = require("path");
 
 // Setup multer for featuredImage and bannerImage
 const upload = getMulterUploader("uploads/blogs");
@@ -124,5 +126,41 @@ router.put("/update-blog/:id", cpUpload, async (req, res) => {
   }
 });
 
+
+// DELETE
+router.delete("/delete-blog/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Blog find karo
+    const blog = await Blog.findById(id);
+    if (!blog) {
+      return res.status(404).json({ message: "Blog not found" });
+    }
+
+    // Agar images hain toh unhe bhi delete karo
+    if (blog.featuredImage) {
+      const featuredPath = path.join(__dirname, "..", blog.featuredImage);
+      if (fs.existsSync(featuredPath)) {
+        fs.unlinkSync(featuredPath);
+      }
+    }
+
+    if (blog.bannerImage) {
+      const bannerPath = path.join(__dirname, "..", blog.bannerImage);
+      if (fs.existsSync(bannerPath)) {
+        fs.unlinkSync(bannerPath);
+      }
+    }
+
+    // Blog ko delete karo
+    await Blog.findByIdAndDelete(id);
+
+    res.status(200).json({ message: "Blog deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting blog:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 module.exports = router;
